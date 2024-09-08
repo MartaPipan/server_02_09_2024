@@ -1,60 +1,22 @@
 const http = require('node:http');
-const fs = require('fs');
+const fs = require('fs').promises;
 const PORT = 3000;
 const users = [];
-const router = {
+const routerGET = {
     '/': './views/index.html',
     '/about': './views/about.html',
     '/contacts': './views/contacts.html',
 };
-
-/**const server = http.createServer((req, res) => {
-    const { method, url } = req;
-     if (method === 'GET') {
-        if (url === '/') {
-            fs.readFile('./views/index.html', { encoding: 'utf8' }, (err, data) => {
-                if (err) {
-                    throw err;
-                }
-                res.end(data);
-            });
-            return;
-        }
-           if (url === '/about') {
-            fs.readFile('./views/about.html', { encoding: 'utf8' }, (err, data) => {
-                if (err) {
-                    throw err;
-                }
-                res.end(data);
-            });
-               return;
-           }
-           if (url === '/contacts') {
-            fs.readFile('./views/contacts.html', { encoding: 'utf8' }, (err, data) => {
-                if (err) {
-                     throw err;
-                }
-                res.end(data);
-            });
-               return;
-           }
-}  */
-//optimization object with for in (iterable) 
-const server = http.createServer((req, res) => {
+const requestListener = async (req, res) => {
     const { method, url } = req;
     if (method === 'GET') {
         for (const path in router) {
-            if (url === path){
-                fs.readFile(router[path], { encoding: 'utf8' }, (err, data) => {
-                    if (err) {
-                        throw err;
-                    }
-                    res.end(data);
-                });
-                return;
-             }
-         }
-     }   
+            if (url === path) {
+                const data = await fs.readFile(router[path], 'utf8');
+                return res.end(data);
+            }
+        }
+    }
     if (method === 'POST') {
         if (url === '/users') {
             let jsonStr = '';
@@ -72,13 +34,11 @@ const server = http.createServer((req, res) => {
             return;
         }
     }
-    fs.readFile('./views/404.html', { encoding: 'utf8' }, (err, data) => {
-        if (err) {
-            throw err;
-        }
-        res.end(data);
-    });           
-});
+
+    const data = await fs.readFile('./views/404.html', 'utf8');
+    res.end(data);
+}
+const server = http.createServer(requestListener);
 
 server.listen(PORT, () => {
     console.log('server start at port ' + PORT);
