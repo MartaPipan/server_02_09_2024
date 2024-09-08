@@ -12,6 +12,7 @@ const server = http.createServer((req, res) => {
                 }
                 res.end(data);
             });
+            return;
         }
            if (url === '/about') {
             fs.readFile('./views/about.html', { encoding: 'utf8' }, (err, data) => {
@@ -20,6 +21,7 @@ const server = http.createServer((req, res) => {
                 }
                 res.end(data);
             });
+               return;
            }
            if (url === '/contacts') {
             fs.readFile('./views/contacts.html', { encoding: 'utf8' }, (err, data) => {
@@ -28,11 +30,17 @@ const server = http.createServer((req, res) => {
                 }
                 res.end(data);
             });
-        }
+               return;
+           }
     }
+    fs.readFile('./views/404.html', { encoding: 'utf8' }, (err, data) => {
+        if (err) {
+            throw err;
+        }
+        res.end(data);
+    });           
 });
-    //read index.html with callback
-   
+
 server.listen(PORT, () => {
     console.log('server start at port ' + PORT);
 });
