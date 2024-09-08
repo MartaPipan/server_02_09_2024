@@ -2,10 +2,15 @@ const http = require('node:http');
 const fs = require('fs');
 const PORT = 3000;
 const users = [];
+const router = {
+    '/': './views/index.html',
+    '/about': './views/about.html',
+    '/contacts': './views/contacts.html',
+};
 
-const server = http.createServer((req, res) => {
+/**const server = http.createServer((req, res) => {
     const { method, url } = req;
-    if (method === 'GET') {
+     if (method === 'GET') {
         if (url === '/') {
             fs.readFile('./views/index.html', { encoding: 'utf8' }, (err, data) => {
                 if (err) {
@@ -33,7 +38,23 @@ const server = http.createServer((req, res) => {
             });
                return;
            }
-    }
+}  */
+//optimization object with for in (iterable) 
+const server = http.createServer((req, res) => {
+    const { method, url } = req;
+    if (method === 'GET') {
+        for (const path in router) {
+            if (url === path){
+                fs.readFile(router[path], { encoding: 'utf8' }, (err, data) => {
+                    if (err) {
+                        throw err;
+                    }
+                    res.end(data);
+                });
+                return;
+             }
+         }
+     }   
     if (method === 'POST') {
         if (url === '/users') {
             let jsonStr = '';
